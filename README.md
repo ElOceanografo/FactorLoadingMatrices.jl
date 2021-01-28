@@ -1,5 +1,6 @@
 # FactorLoadingMatrices.jl
 *Julia package to construct loading matrices for factor analysis*
+
 [![Build Status](https://github.com/eloceanografo/FactorLoadingMatrices.jl/workflows/CI/badge.svg)](https://github.com/eloceanografo/FactorLoadingMatrices.jl/actions)
 
 
