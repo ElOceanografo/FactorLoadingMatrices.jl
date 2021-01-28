@@ -24,18 +24,16 @@ filled in order running down the columns from left to right.
 - `nx::Integer`: Dimension of the data, i.e. the number of rows in the loading matrix
 - `nfactor::Integer`: Number of factors, i.e. the number of columns in the loading matrix
 """
-function loading_matrix(values::AbstractVector, nx::Integer, nfactor::Integer)
+function loading_matrix(values::AbstractVector{T}, nx::Integer, nfactor::Integer) where T
     if length(values) != nnz_loading(nx, nfactor)
         throw(ArgumentError("Wrong number of data values for a loading matrix of the specified size."))
     end
-    L = zeros(eltype(values), nx, nfactor)
+    L = zeros(T, nx, nfactor)
     k = 1
-    for i in 1:nx, j in 1:nfactor
-        if i >= j
-            L[i, j] = i >= j ? values[k] : 0
-            k += 1
-        end
-    end
+	for i in 1:nx, j in 1:min(i, nfactor)
+		L[i, j] = values[k]
+		k += 1
+	end
     return L
 end
 
@@ -52,18 +50,17 @@ VARIMAX perform varimax (or quartimax, equamax, parsimax) rotation to the column
 - `B::Matrix{Float64}`: output matrix, whose columns are already been rotated.
 Implemented by Haotian Li, Aug. 20, 2019
 """
-function varimax(A; gamma = 1.0, minit = 20, maxit = 1000, reltol = 1e-12)
+function varimax(A::AbstractMatrix{TA}; gamma = 1.0, minit = 20, maxit = 1000,
+		reltol = 1e-12) where TA
 	d, m = size(A)
 	m == 1 && return A
-	TA = eltype(A)
-
 	# Warm up step: start with a good initial orthogonal matrix T by SVD and QR
 	T = Matrix{TA}(I, m, m)
 	B = A * T
 	L,_,M = svd(A' * (d*B.^3 - gamma*B * Diagonal(sum(B.^2, dims = 1)[:])))
 	T = L * M'
-	if norm(T-Matrix{TA}(I, m, m)) < reltol
-		T,_ = qr(randn(m,m)).Q
+	if norm(T - Matrix{TA}(I, m, m)) < reltol
+		T,_ = qr(randn(m,m)).QT
 		B = A * T
 	end
 
