@@ -1,23 +1,25 @@
 # FactorLoadingMatrices.jl
-*Lightweight Julia package to create loading matrices for factor analysis*
+*Julia package to construct loading matrices for factor analysis*
 
-This is a small package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  These matrices can be used in more complex probabilistic models (in Turing, for instance); if you just need traditional factor analysis that's available in [MultivariateStats.jl])https://github.com/JuliaStats/MultivariateStats.jl).
+This is a lightweight package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  If you just need traditional factor analysis, that's available in [MultivariateStats.jl])https://github.com/JuliaStats/MultivariateStats.jl).  However, if you are
 
 ## Factor analysis and Loading Matrices
-Factor analysis is a statistical method where an *n*-dimensional vector of correlated variables **x** is represented as a linear combination of a smaller number *m* of unobserved, uncorrelated "factors" **f**. The key to this representation is the *loading matrix* L, which maps the low-dimensional vector of factors to the higher-dimensional vector of data,
+Factor analysis is a statistical method where  *n*-dimensional vector-valued variables **x** are represented as linear combination *m*-dimensional vectors of "factors" **f**. This linear combination is specified by an *n × m* loading matrix *L*,
 
-<img src="https://render.githubusercontent.com/render/math?math=\mathbf{x} = L \mathbf{f}">.
+<img src="https://render.githubusercontent.com/render/math?math=\mathbf{x}_i = L \mathbf{f}_i">,
 
-Alternatively, if we have multiple observations of **x**, we can collect them in the columns of a data matrix *X* and write the system of equations as
+where *i* indexes the observations. If we collect all observations of **x** and **f** in the columns of matrices *X* and *F*, we can write the system as
 
-<img src="https://render.githubusercontent.com/render/math?math={X = L F}">,
+<img src="https://render.githubusercontent.com/render/math?math={X = L F}">.
 
-where *F* is a matrix with *m* rows and the same number of columns as *X*.  
+This representation is useful when the elements of **x** are correlated with each other, so most of their variability can be captured using a small number of factors.  That means we can set *m < n*, and that *L* will be a rectangular matrix with more rows than columns.
 
-Given a dataset *X*, there is no single unique way to do this decomposition, but we would like the columns of *L* to be linearly independent.  One easy way to do this is to force all entries above the diagonal to be zero.  `FactorLoadingMatrices` exports two functions that can be used to construct matrices with this property:
+There is no unique way to do this decomposition, but we would like the columns of *L* to be linearly independent.  One simple way to enforce this is to set all entries above the diagonal to be zero.  `FactorLoadingMatrices` exports two functions that can be used to construct matrices with this property:
+
 * `nnz_loading(nx, nfactor)` calculates the number of nonzero entries in a lower-triangular matrix with size `(nx, nfactor)`.
 * `loading_matrix(values, nx, nfactor)` arranges the numers in the vector `values` in the lower triangle of the matrix with the specified size.
 
+The following example shows how they are used.
 ```julia
 julia> using FactorLoadingMatrices
 
@@ -39,9 +41,9 @@ julia> L = loading_matrix(randn(nnz), nx, nfactor)
 
 This package also exports a function `varimax` (originally implemented by Haotian Li as part of [NGWP.jl](https://github.com/haotian127/NGWP.jl)) to perform the [varimax](https://en.wikipedia.org/wiki/Varimax_rotation) rotation on loading matrices.
 
-## Baayesian factor analysis using Turing
+## Bayesian factor analysis using Turing
 
-This example shows how the utility functions in `LoadingMatrices.jl` make it easy to perform Bayesian probabilistic factor analysis in Turing.  This is a relatively simple use case, but it would be straightforward to add other layers and processes to the model (e.g. covariates, non-Gaussian observations, etc.).
+The next example shows how the utility functions in `FactorLoadingMatrices.jl` make it easy to perform Bayesian probabilistic factor analysis in Turing.
 
 ```julia
 using FactorLoadingMatrices
@@ -82,14 +84,14 @@ mod = FactorModel(X, nfactor)
 chn = sample(mod, NUTS(), 100)
 ```
 
-Once the chain has completed sampling, we can extract and plot the posterior for the loading matrix.  Note that the matrix's values are sampled as a flat vector, so we have to reconstruct the matrices from them.
+Once the sampler finishes, we can extract the posterior for the loading matrix.  Note that the matrix's nonzero values are stored as a flat vector inside the model, so we have to reconstruct the matrices after the fact.
 
 ```julia
 vals_post = Array(group(chn, :vals))
-L_post = [loading_matrix(v, nx, 3) for v in eachrow(vals_post)]
+L_post = [loading_matrix(v, nx, nfactor) for v in eachrow(vals_post)]
 ```
 
-Before comparing the matrices in `L_post` to the true `L`, we'll apply `varimax` to each one.  There's no guarantee that the model will fit the same combination of `L` and `F` we started with, but they should be the same (approximately) after applying a variance-maximizing rotation.
+Before comparing the matrices in `L_post` to the true `L`, we'll apply `varimax` to each one.  There's no guarantee that the model will converge on the same `L` and `F` we started with, but they should be the same (approximately) after applying a variance-maximizing rotation.
 
 ```
 L_post_vm = varimax.(L_post)
@@ -101,3 +103,5 @@ plot!(varimax(L), 1:nx, layout=(1, 3), label="Truth")
 ![MCMC posteriors for loading matrix](mcmc_factors.png)
 
 Columns 1 and 3 of the rotated matrix were recovered quite well by the model, though it struggled a bit with column 2.
+
+This is a relatively simple use case, but it would be straightforward to add other layers and processes to the model (e.g. covariates, non-Gaussian observations, etc.).
