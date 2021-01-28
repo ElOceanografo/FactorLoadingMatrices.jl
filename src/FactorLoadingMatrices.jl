@@ -1,4 +1,4 @@
-module LoadingMatrices
+module FactorLoadingMatrices
 using LinearAlgebra
 
 export nnz_loading, loading_matrix, varimax
