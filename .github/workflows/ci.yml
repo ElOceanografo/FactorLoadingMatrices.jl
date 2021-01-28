@@ -56,7 +56,7 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
-            using SPDEPrecisionMatrices
-            doctest(SPDEPrecisionMatrices)'
+            using FactorLoadingMatrices
+            doctest(FactorLoadingMatrices)'
       - run: julia --project=docs docs/make.jl
         env:
