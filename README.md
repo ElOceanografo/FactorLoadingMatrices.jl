@@ -93,7 +93,7 @@ L_post = [loading_matrix(v, nx, nfactor) for v in eachrow(vals_post)]
 
 Before comparing the matrices in `L_post` to the true `L`, we'll apply `varimax` to each one.  There's no guarantee that the model will converge on the same `L` and `F` we started with, but they should be the same (approximately) after applying a variance-maximizing rotation.
 
-```
+```julia
 L_post_vm = varimax.(L_post)
 
 plot(mean(L_post_vm), 1:nx, xerror=2std(L_post_vm), markerstrokecolor=1,
