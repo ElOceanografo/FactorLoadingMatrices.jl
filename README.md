@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/eloceanografo/FactorLoadingMatrices.jl/workflows/CI/badge.svg)](https://github.com/eloceanografo/FactorLoadingMatrices.jl/actions)
 
 
-This is a lightweight package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  If you just need traditional factor analysis, that's available in [MultivariateStats.jl](https://github.com/JuliaStats/MultivariateStats.jl).  However, if you are
+This is a lightweight package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  If you just need traditional factor analysis, that's available in [MultivariateStats.jl](https://github.com/JuliaStats/MultivariateStats.jl).  However, if you are doing factor analysis in a Bayesian or probabilistic context, or as part of a more complex statistical model, the utilities in this package may be useful.
 
 ## Factor analysis and loading matrices
 Factor analysis is a statistical method where  *n*-dimensional vector-valued variables **x** are represented as linear combination *m*-dimensional vectors of "factors" **f**. This linear combination is specified by an *n × m* loading matrix *L*,
@@ -15,7 +15,7 @@ where *i* indexes each observation. If we collect all observations of **x** and 
 
 <img src="https://render.githubusercontent.com/render/math?math={X = L F}">.
 
-Factor analysis is useful when the elements of **x** are correlated with each other, so most of their variability can be captured using a small number of factors.  That means we can set *m < n*, and that *L* will be a rectangular matrix with more rows than columns.
+Factor analysis is useful when the elements of **x** are correlated with each other, so most of their variability can be captured using a small number of factors.  That means we can set *m < n*, and that *L* will be a rectangular matrix with more rows than columns.  Factor analysis is thus related to other dimensionality-reduction methods, like principle-component analysis/empirical orthogonal functions (PCA/EOF).
 
 There is no unique way to do this decomposition, but we want all the columns of *L* to be linearly independent.  A simple way to enforce this requirement is to set all entries above the diagonal to zero.  `FactorLoadingMatrices` exports two functions for constructing matrices with this property:
 
