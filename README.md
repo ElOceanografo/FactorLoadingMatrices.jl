@@ -1,14 +1,14 @@
 # LoadingMatrices.jl
-Lightweight Julia package to create loading matrices for factor analysis
+*Lightweight Julia package to create loading matrices for factor analysis*
 
-This is a small package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  These matrices can be used in more complex probabilistic models (in Turing, for instance); if you just need traditional factor analysis that's available in [MultivariateStats.jl])https://github.com/JuliaStats/MultivariateStats.jl). 
+This is a small package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  These matrices can be used in more complex probabilistic models (in Turing, for instance); if you just need traditional factor analysis that's available in [MultivariateStats.jl])https://github.com/JuliaStats/MultivariateStats.jl).
 
 ## Factor analysis and LoadingMatrices
 Factor analysis is a statistical method where an *n*-dimensional vector of correlated variables **x** is represented as a linear combination of a smaller number *m* of unobserved, uncorrelated "factors" **f**. The key to this representation is the *loading matrix* L, which maps the low-dimensional vector of factors to the higher-dimensional vector of data,
 
 <img src="https://render.githubusercontent.com/render/math?math=\mathbf{x} = L \mathbf{f}">.
 
-Alternatively, if we have multiple observations of **x**, we can collect them in the columns of a data matrix *X* and write the system of equations as 
+Alternatively, if we have multiple observations of **x**, we can collect them in the columns of a data matrix *X* and write the system of equations as
 
 <img src="https://render.githubusercontent.com/render/math?math={X = L F}">,
 
@@ -82,7 +82,7 @@ mod = FactorModel(X, nfactor)
 chn = sample(mod, NUTS(), 100)
 ```
 
-Once the chain has completed sampling, we can extract and plot the posterior for the loading matrix.  Note that the matrix's values are sampled as a flat vector, so we have to reconstruct the matrices from them. 
+Once the chain has completed sampling, we can extract and plot the posterior for the loading matrix.  Note that the matrix's values are sampled as a flat vector, so we have to reconstruct the matrices from them.
 
 ```julia
 vals_post = Array(group(chn, :vals))
@@ -98,6 +98,6 @@ plot(mean(L_post_vm), 1:nx, xerror=2std(L_post_vm), markerstrokecolor=1,
     layout=(1, 3), label="Model", title=["L[:, 1]" "L[:, 2]" "L[:, 3]"])
 plot!(varimax(L), 1:nx, layout=(1, 3), label="Truth")
 ```
+![MCMC posteriors for loading matrix](mcmc_factors.png)
 
-
-
+Columns 1 and 3 of the rotated matrix were recovered quite well by the model, though it struggled a bit with column 2.
