@@ -1,4 +1,4 @@
-# LoadingMatrices.jl
+# FactorLoadingMatrices.jl
 *Lightweight Julia package to create loading matrices for factor analysis*
 
 This is a small package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  These matrices can be used in more complex probabilistic models (in Turing, for instance); if you just need traditional factor analysis that's available in [MultivariateStats.jl])https://github.com/JuliaStats/MultivariateStats.jl).
@@ -14,12 +14,12 @@ Alternatively, if we have multiple observations of **x**, we can collect them in
 
 where *F* is a matrix with *m* rows and the same number of columns as *X*.  
 
-Given a dataset *X*, there is no single unique way to do this decomposition, but we would like the columns of *L* to be linearly independent.  One easy way to do this is to force all entries above the diagonal to be zero.  `LoadingMatrices` exports two functions that can be used to construct matrices with this property:
+Given a dataset *X*, there is no single unique way to do this decomposition, but we would like the columns of *L* to be linearly independent.  One easy way to do this is to force all entries above the diagonal to be zero.  `FactorLoadingMatrices` exports two functions that can be used to construct matrices with this property:
 * `nnz_loading(nx, nfactor)` calculates the number of nonzero entries in a lower-triangular matrix with size `(nx, nfactor)`.
 * `loading_matrix(values, nx, nfactor)` arranges the numers in the vector `values` in the lower triangle of the matrix with the specified size.
 
 ```julia
-julia> using LoadingMatrices
+julia> using FactorLoadingMatrices
 
 julia> nx = 5;
 
@@ -44,7 +44,7 @@ This package also exports a function `varimax` (originally implemented by Haotia
 This example shows how the utility functions in `LoadingMatrices.jl` make it easy to perform Bayesian probabilistic factor analysis in Turing.  This is a relatively simple use case, but it would be straightforward to add other layers and processes to the model (e.g. covariates, non-Gaussian observations, etc.).
 
 ```julia
-using LoadingMatrices
+using FactorLoadingMatrices
 using Random
 using Plots
 using Turing

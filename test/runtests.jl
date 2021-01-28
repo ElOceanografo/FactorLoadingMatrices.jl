@@ -1,5 +1,5 @@
 using Test
-using LoadingMatrices
+using FactorLoadingMatrices
 using LinearAlgebra
 
 @testset "LoadingMatrices" begin

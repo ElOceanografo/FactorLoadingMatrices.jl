@@ -1,5 +1,5 @@
-name = "LoadingMatrices"
-uuid = "e727e771-cdf2-4e4f-9de3-9178de403442"
+name = "FactorLoadingMatrices"
+uuid = "1366662e-918a-4969-8935-7dd8903d6446"
 authors = ["Sam Urmy <oceanographerschoice@gmail.com>"]
 version = "0.1.0"
 

@@ -1,4 +1,4 @@
-using LoadingMatrices
+using FactorLoadingMatrices
 using Random
 using Plots
 using Turing
