@@ -3,7 +3,7 @@
 
 This is a small package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  These matrices can be used in more complex probabilistic models (in Turing, for instance); if you just need traditional factor analysis that's available in [MultivariateStats.jl])https://github.com/JuliaStats/MultivariateStats.jl).
 
-## Factor analysis and LoadingMatrices
+## Factor analysis and Loading Matrices
 Factor analysis is a statistical method where an *n*-dimensional vector of correlated variables **x** is represented as a linear combination of a smaller number *m* of unobserved, uncorrelated "factors" **f**. The key to this representation is the *loading matrix* L, which maps the low-dimensional vector of factors to the higher-dimensional vector of data,
 
 <img src="https://render.githubusercontent.com/render/math?math=\mathbf{x} = L \mathbf{f}">.
