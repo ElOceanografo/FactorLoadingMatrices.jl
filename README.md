@@ -4,25 +4,25 @@
 [![Build Status](https://github.com/eloceanografo/FactorLoadingMatrices.jl/workflows/CI/badge.svg)](https://github.com/eloceanografo/FactorLoadingMatrices.jl/actions)
 
 
-This is a lightweight package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  If you just need traditional factor analysis, that's available in [MultivariateStats.jl])https://github.com/JuliaStats/MultivariateStats.jl).  However, if you are
+This is a lightweight package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  If you just need traditional factor analysis, that's available in [MultivariateStats.jl](https://github.com/JuliaStats/MultivariateStats.jl).  However, if you are
 
-## Factor analysis and Loading Matrices
+## Factor analysis and loading matrices
 Factor analysis is a statistical method where  *n*-dimensional vector-valued variables **x** are represented as linear combination *m*-dimensional vectors of "factors" **f**. This linear combination is specified by an *n × m* loading matrix *L*,
 
 <img src="https://render.githubusercontent.com/render/math?math=\mathbf{x}_i = L \mathbf{f}_i">,
 
-where *i* indexes the observations. If we collect all observations of **x** and **f** in the columns of matrices *X* and *F*, we can write the system as
+where *i* indexes each observation. If we collect all observations of **x** and **f** in the columns of matrices *X* and *F*, we can write the system as
 
 <img src="https://render.githubusercontent.com/render/math?math={X = L F}">.
 
-This representation is useful when the elements of **x** are correlated with each other, so most of their variability can be captured using a small number of factors.  That means we can set *m < n*, and that *L* will be a rectangular matrix with more rows than columns.
+Factor analysis is useful when the elements of **x** are correlated with each other, so most of their variability can be captured using a small number of factors.  That means we can set *m < n*, and that *L* will be a rectangular matrix with more rows than columns.
 
-There is no unique way to do this decomposition, but we would like the columns of *L* to be linearly independent.  One simple way to enforce this is to set all entries above the diagonal to be zero.  `FactorLoadingMatrices` exports two functions that can be used to construct matrices with this property:
+There is no unique way to do this decomposition, but we want all the columns of *L* to be linearly independent.  A simple way to enforce this requirement is to set all entries above the diagonal to zero.  `FactorLoadingMatrices` exports two functions for constructing matrices with this property:
 
 * `nnz_loading(nx, nfactor)` calculates the number of nonzero entries in a lower-triangular matrix with size `(nx, nfactor)`.
 * `loading_matrix(values, nx, nfactor)` arranges the numers in the vector `values` in the lower triangle of the matrix with the specified size.
 
-The following example shows how they are used.
+The following example shows how to use them.
 ```julia
 julia> using FactorLoadingMatrices
 
@@ -42,7 +42,7 @@ julia> L = loading_matrix(randn(nnz), nx, nfactor)
  -2.74867   -0.128697    0.301587
 ```
 
-This package also exports a function `varimax` (originally implemented by Haotian Li as part of [NGWP.jl](https://github.com/haotian127/NGWP.jl)) to perform the [varimax](https://en.wikipedia.org/wiki/Varimax_rotation) rotation on loading matrices.
+This package also exports a function `varimax` (modified from the implementation by Haotian Li in [NGWP.jl](https://github.com/haotian127/NGWP.jl)) to perform the [varimax](https://en.wikipedia.org/wiki/Varimax_rotation) rotation on loading matrices.
 
 ## Bayesian factor analysis using Turing
 
@@ -78,8 +78,9 @@ X = L * F .+ σ*randn()
     F ~ filldist(Normal(0, 1), nfactor, nobs)
     vals ~ filldist(Normal(0, 2), nnz_loading(nx, nfactor))
     σ ~ Exponential(1.0)
-
+    # make the loading matrix
     L = loading_matrix(vals, nx, nfactor)
+    # observation likelihood
     X ~ arraydist(Normal.(L * F, σ))
 end
 
@@ -87,7 +88,7 @@ mod = FactorModel(X, nfactor)
 chn = sample(mod, NUTS(), 100)
 ```
 
-Once the sampler finishes, we can extract the posterior for the loading matrix.  Note that the matrix's nonzero values are stored as a flat vector inside the model, so we have to reconstruct the matrices after the fact.
+Once the sampler finishes running, we can extract the posterior for *L*.  Note that the matrix is sampled inside the model as a flat vector of its nonzero entries, so we have to reconstruct the loading matrices from those.
 
 ```julia
 vals_post = Array(group(chn, :vals))
