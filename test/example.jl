@@ -1,14 +1,18 @@
 using LoadingMatrices
-using Turing
-using ReverseDiff
 using Random
 using Plots
+using Turing
+# using Memoization and reverse-mode autodiff speeds up MCMC sampling
+# *a lot* when fitting high-dimensional models
+using Memoization
+using ReverseDiff
+Turing.setadbackend(:reversediff)
 
 Random.seed!(1)
 
 nx = 50
 nfactor = 3
-nobs = 100
+nobs = 300
 σ = 0.5
 
 vals = randn(nnz_loading(nx, nfactor))
@@ -24,22 +28,19 @@ X = L * F .+ σ*randn()
     vals ~ filldist(Normal(0, 2), nnz_loading(nx, nfactor))
     σ ~ Exponential(1.0)
 
-    # reshape `vals` into a lower-triangular loading matrix
     L = loading_matrix(vals, nx, nfactor)
-    μ = L * F
-    X ~ arraydist(Normal.(μ, σ))
+    X ~ arraydist(Normal.(L * F, σ))
 end
 
-Turing.setadbackend(:reversediff)
 mod = FactorModel(X, nfactor)
 chn = sample(mod, NUTS(), 100)
 
 vals_post = Array(group(chn, :vals))
-
 L_post = [loading_matrix(v, nx, 3) for v in eachrow(vals_post)]
-L_post_mean = mean(L_post)
 
-plot(L_post_mean)
-plot(L)
+L_post_vm = varimax.(L_post)
+plot(mean(L_post_vm), 1:nx, xerror=2std(L_post_vm), markerstrokecolor=1,
+    layout=(1, 3), label="Model", title=["L[:, 1]" "L[:, 2]" "L[:, 3]"])
+plot!(varimax(L), 1:nx, layout=(1, 3), label="Truth")
 
-L \ L_post_mean
+savefig("mcmc_factors.png")
