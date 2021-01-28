@@ -1,7 +1,7 @@
 # FactorLoadingMatrices.jl
 *Julia package to construct loading matrices for factor analysis*
 
-![CI](https://github.com/ElOceanografo/FactorLoadingMatrices.jl/workflows/CI/badge.svg)
+[![CI](https://github.com/ElOceanografo/FactorLoadingMatrices.jl/workflows/CI/badge.svg)](https://github.com/ElOceanografo/FactorLoadingMatrices.jl/actions?query=workflow%3ACI+branch%3Amaster)
 
 This is a lightweight package to construct loading matrices for probabilistic [factor analysis](https://en.wikipedia.org/wiki/Factor_analysis) and dimensionality reduction.  If you just need traditional factor analysis, that's available in [MultivariateStats.jl])https://github.com/JuliaStats/MultivariateStats.jl).  However, if you are
 
