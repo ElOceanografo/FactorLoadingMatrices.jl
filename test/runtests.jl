@@ -1,6 +1,8 @@
 using Test
 using FactorLoadingMatrices
 using LinearAlgebra
+using ChainRulesTestUtils
+using Zygote
 
 @testset "LoadingMatrices" begin
     nx = 5
@@ -31,6 +33,15 @@ using LinearAlgebra
                 @test L[i, j] ≈ 0
             end
         end
+    end
+
+    @testset "ChainRules" begin
+        values = ones(nnz_loading(nx, nfactor))
+        test_rrule(loading_matrix, values, nx, nfactor)
+
+        f(x) = sum(abs2, loading_matrix(x, nx, nfactor))
+        @test all(Zygote.gradient(f, values)[1] .≈ fill(2.0, length(values)))
+        @test all(Zygote.hessian(f, values) .≈ diagm(fill(2.0, length(values))))
     end
 
     @testset "Varimax" begin

@@ -1,5 +1,6 @@
 module FactorLoadingMatrices
 using LinearAlgebra
+using ChainRulesCore
 
 export nnz_loading, loading_matrix, varimax
 
@@ -35,6 +36,26 @@ function loading_matrix(values::AbstractVector{T}, nx::Integer, nfactor::Integer
 		k += 1
 	end
     return L
+end
+
+function _nzvalues(L, nx, nfactor)
+	values = Vector{eltype(L)}(undef, nnz_loading(nx, nfactor))
+	k = 1
+	for i in 1:nx, j in 1:min(i, nfactor)
+		values[k] = L[i, j]
+		k += 1
+	end
+	return values
+end
+
+function ChainRulesCore.rrule(::typeof(loading_matrix), 
+		values::AbstractVector{T}, nx::Integer, nfactor::Integer) where T
+	L = loading_matrix(values, nx, nfactor)
+	function loading_matrix_pullback(ΔL)
+		dvalues = _nzvalues(ΔL, nx, nfactor)
+		return (NoTangent(), dvalues, NoTangent(), NoTangent())
+	end
+	return L, loading_matrix_pullback
 end
 
 """
