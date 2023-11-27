@@ -1,7 +1,7 @@
 name = "FactorLoadingMatrices"
 uuid = "1366662e-918a-4969-8935-7dd8903d6446"
 authors = ["Sam Urmy <oceanographerschoice@gmail.com>"]
-version = "0.1.5"
+version = "0.1.4"
 
 [deps]
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
